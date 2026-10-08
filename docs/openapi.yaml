@@ -1,0 +1,151 @@
+openapi: 3.0.3
+info:
+  title: Internship Portal Authorization API
+  version: 1.0.0
+  description: |
+    RBAC + ownership authorization demo. 401 means authentication is missing/invalid.
+    403 means authentication succeeded but the user is forbidden.
+servers:
+  - url: http://localhost:3000/api
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    Error:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code: { type: string, example: FORBIDDEN }
+            message: { type: string, example: You are not authorized to perform this action. }
+    Internship:
+      type: object
+      properties:
+        id: { type: integer }
+        company_id: { type: integer }
+        title: { type: string }
+        description: { type: string }
+        location: { type: string }
+        is_active: { type: integer }
+paths:
+  /auth/login:
+    post:
+      summary: Login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email: { type: string }
+                password: { type: string }
+      responses:
+        '200': { description: Logged in }
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+  /auth/me:
+    get:
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { description: Current user }
+        '401': { description: Missing or invalid authentication }
+  /internships:
+    get:
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { description: Active internships }
+        '401': { description: Authentication required }
+    post:
+      security: [{ bearerAuth: [] }]
+      responses:
+        '201': { description: Created }
+        '401': { description: Authentication required }
+        '403': { description: Student is forbidden; only company/admin may create }
+  /internships/{id}:
+    patch:
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        '200': { description: Updated }
+        '401': { description: Authentication required }
+        '403': { description: Authenticated but not owner/admin }
+    delete:
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        '200': { description: Deleted }
+        '401': { description: Authentication required }
+        '403': { description: Authenticated but not owner/admin }
+  /internships/{id}/apply:
+    post:
+      security: [{ bearerAuth: [] }]
+      responses:
+        '201': { description: Application created }
+        '401': { description: Authentication required }
+        '403': { description: Only students may apply }
+  /applications/{id}:
+    get:
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { description: Application visible to owner/company/admin }
+        '401': { description: Authentication required }
+        '403': { description: Authenticated but not authorized for this application }
+  /applications/{id}/status:
+    patch:
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { description: Status updated }
+        '401': { description: Authentication required }
+        '403': { description: Only owning company or admin }
+  /applications/{id}/withdraw:
+    post:
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { description: Withdrawn }
+        '401': { description: Authentication required }
+        '403': { description: Only application owner can withdraw }
+  /dashboard/company:
+    get:
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { description: Company-owned resources }
+        '401': { description: Authentication required }
+        '403': { description: Non-company role }
+  /dashboard/student:
+    get:
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { description: Student-owned applications }
+        '401': { description: Authentication required }
+        '403': { description: Non-student role }
+  /admin/users:
+    get:
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { description: All users for admin }
+        '401': { description: Authentication required }
+        '403': { description: Admin role required }
+  /admin/internships:
+    get:
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { description: All internships for admin }
+        '401': { description: Authentication required }
+        '403': { description: Admin role required }

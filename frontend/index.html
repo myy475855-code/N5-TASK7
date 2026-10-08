@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Internship Portal — RBAC Demo</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header class="navbar">
+    <div>
+      <h1>Internship Portal</h1>
+      <small>Backend Authorization / RBAC Demo</small>
+    </div>
+    <div id="session"></div>
+  </header>
+
+  <main class="container">
+    <section id="loginView" class="card">
+      <h2>Sign in</h2>
+      <p class="muted">Demo password for every seeded account: <b>Password123!</b></p>
+      <div class="grid">
+        <button onclick="demoLogin('student@example.com')">Student demo</button>
+        <button onclick="demoLogin('company@example.com')">Company demo</button>
+        <button onclick="demoLogin('admin@example.com')">Admin demo</button>
+      </div>
+      <hr>
+      <form id="loginForm">
+        <label>Email <input id="email" type="email" required></label>
+        <label>Password <input id="password" type="password" required></label>
+        <button type="submit">Login</button>
+      </form>
+    </section>
+
+    <section id="appView" hidden>
+      <div id="notice"></div>
+      <nav class="tabs">
+        <button onclick="showSection('internships')">Internships</button>
+        <button id="studentTab" onclick="showSection('student')" hidden>My Applications</button>
+        <button id="companyTab" onclick="showSection('company')" hidden>Company Dashboard</button>
+        <button id="adminTab" onclick="showSection('admin')" hidden>Admin</button>
+      </nav>
+
+      <section id="internships" class="section"></section>
+      <section id="student" class="section" hidden></section>
+      <section id="company" class="section" hidden></section>
+      <section id="admin" class="section" hidden></section>
+    </section>
+  </main>
+
+  <script src="/app.js"></script>
+</body>
+</html>
